@@ -28,7 +28,7 @@ struct command_line *parse_input() {
     fgets(input, INPUT_LENGTH, stdin);
 
     // Tokenize the input
-    char *token = strtok_r(input, " \n", &savePtr);
+    char *token = strtok_r(input, "# \n", &savePtr);
 
     while (token) {
         // Skip comments
@@ -43,7 +43,7 @@ struct command_line *parse_input() {
         } else{
             curr_command->argv[curr_command->argc++] = strdup(token);
         }
-            token=strtok_r(NULL," \n", &savePtr);
+        token=strtok_r(NULL," \n", &savePtr);
     }
     return curr_command;
 }
