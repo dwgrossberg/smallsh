@@ -14,5 +14,12 @@ struct command_line {
     bool is_bg;
 };
 
+// Linked List to save child PIDs
+struct PID_llist {
+    pid_t PID;
+    struct PID_llist *next;
+};
+
 // Function prototypes
 struct command_line *parse_input();
+void exit_shell(struct PID_llist *);

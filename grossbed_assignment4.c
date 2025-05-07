@@ -8,13 +8,29 @@
 
 int main() {
     struct command_line *curr_command;
+    // Save child process IDs
+    struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
+    char *command;
     while (true) {
         curr_command = parse_input();
+        // Check for built-in command
+        command = curr_command->argv[0];
+        if (strcmp(command, "exit") == 0) {
+            exit_shell(children);
+        } else if (strcmp(command, "cd") == 0) {
+            printf("%s", command);
+        } else if (strcmp(command, "status") == 0) {
+            printf("%s", command);
+        }
     }
+
     return EXIT_SUCCESS;
 }
 
 /*
+    Function: parse_input: parses the user input to the command line
+    Params: none
+    Returns: pointer to a command line struct saved (calloced) in memory
     Citation: based on the sample parsing program given with assignment 4.
 */
 struct command_line *parse_input() {
