@@ -8,9 +8,8 @@
 
 int main() {
     struct command_line *curr_command;
-    while(true)
-    {
-    curr_command = parse_input();
+    while (true) {
+        curr_command = parse_input();
     }
     return EXIT_SUCCESS;
 }
@@ -21,6 +20,7 @@ int main() {
 struct command_line *parse_input() {
     char input[INPUT_LENGTH];
     struct command_line *curr_command = (struct command_line *) calloc(1, sizeof(struct command_line));
+    char *savePtr;
 
     // Get input
     printf(": ");
@@ -28,19 +28,22 @@ struct command_line *parse_input() {
     fgets(input, INPUT_LENGTH, stdin);
 
     // Tokenize the input
-    char *token = strtok(input, " \n");
+    char *token = strtok_r(input, " \n", &savePtr);
 
     while (token) {
-        if(!strcmp(token,"<")){
-        curr_command->input_file = strdup(strtok(NULL," \n"));
-        } else if(!strcmp(token,">")){
-        curr_command->output_file = strdup(strtok(NULL," \n"));
-        } else if(!strcmp(token,"&")){
-        curr_command->is_bg = true;
+        // Skip comments
+        if (!strcmp(token, "#")) {
+            break;
+        } else if (!strcmp(token, "<")) {
+            curr_command->input_file = strdup(strtok(NULL," \n"));
+        } else if (!strcmp(token, ">")) {
+            curr_command->output_file = strdup(strtok(NULL," \n"));
+        } else if (!strcmp(token,"&")) {
+            curr_command->is_bg = true;
         } else{
-        curr_command->argv[curr_command->argc++] = strdup(token);
+            curr_command->argv[curr_command->argc++] = strdup(token);
         }
-        token=strtok(NULL," \n");
+            token=strtok_r(NULL," \n", &savePtr);
     }
     return curr_command;
 }
