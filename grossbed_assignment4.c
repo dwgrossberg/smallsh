@@ -17,8 +17,25 @@ int main() {
         command = curr_command->argv[0];
         if (strcmp(command, "exit") == 0) {
             exit_shell(children);
+        } else if (strcmp(command, "ll") == 0) {
+            pid_t a = 16;
+            pid_t b = 198;
+            pid_t c = 8;
+            pid_t d = 1;
+            pid_t e = 10393;
+            add_node(children, a);
+            add_node(children, b);
+            add_node(children, c);
+            add_node(children, d);
+            add_node(children, e);
+            printLinkedList(children);
+            del_node(children, a);
+            del_node(children, c);
+            del_node(children, e);
+            printLinkedList(children);
         } else if (strcmp(command, "cd") == 0) {
             printf("%s", command);
+            
         } else if (strcmp(command, "status") == 0) {
             printf("%s", command);
         }
