@@ -16,10 +16,13 @@ struct command_line {
 
 // Linked List to save child PIDs
 struct PID_llist {
-    pid_t PID;
+    pid_t pid;
     struct PID_llist *next;
 };
 
 // Function prototypes
 struct command_line *parse_input();
 void exit_shell(struct PID_llist *);
+void add_node(struct PID_llist *head, pid_t PID);
+struct PID_llist* del_node(struct PID_llist *head, pid_t PID);
+void printLinkedList(struct PID_llist *head);
