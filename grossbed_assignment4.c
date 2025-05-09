@@ -1,5 +1,4 @@
 #include "grossbed_assignment4.h"
-#define _PATH_MAX = 1024;
 
 /*  
     Program Name: grossbed_assignment4.c
@@ -37,8 +36,7 @@ int main() {
                 del_node(children, e);
                 printLinkedList(children);
             } else if (strcmp(command, "cd") == 0) {
-
-                printf("%s", command);
+                change_dir(curr_command->argv[1]);
             } else if (strcmp(command, "status") == 0) {
                 printf("%s", command);
             }
