@@ -18,7 +18,6 @@ void add_node(struct PID_llist *head, pid_t PID) {
     curr->pid = PID;
 }
 
-
 /*
     Function: delete_node: delete a node from the linked list
     Params: pointer to PID_llist struct - head of LL with all children PIDs

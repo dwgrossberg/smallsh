@@ -1,4 +1,5 @@
 #include "grossbed_assignment4.h"
+#define _PATH_MAX = 1024;
 
 /*  
     Program Name: grossbed_assignment4.c
@@ -11,36 +12,38 @@ int main() {
     // Save child process IDs
     struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
     char *command;
+    
     while (true) {
         curr_command = parse_input();
         // Check for built-in command
         command = curr_command->argv[0];
-        if (strcmp(command, "exit") == 0) {
-            exit_shell(children);
-        } else if (strcmp(command, "ll") == 0) {
-            pid_t a = 16;
-            pid_t b = 198;
-            pid_t c = 8;
-            pid_t d = 1;
-            pid_t e = 10393;
-            add_node(children, a);
-            add_node(children, b);
-            add_node(children, c);
-            add_node(children, d);
-            add_node(children, e);
-            printLinkedList(children);
-            del_node(children, a);
-            del_node(children, c);
-            del_node(children, e);
-            printLinkedList(children);
-        } else if (strcmp(command, "cd") == 0) {
-            printf("%s", command);
-            
-        } else if (strcmp(command, "status") == 0) {
-            printf("%s", command);
+        if (command != NULL) {
+            if (strcmp(command, "exit") == 0) {
+                exit_shell(children);
+            } else if (strcmp(command, "ll") == 0) {
+                pid_t a = 16;
+                pid_t b = 198;
+                pid_t c = 8;
+                pid_t d = 1;
+                pid_t e = 10393;
+                add_node(children, a);
+                add_node(children, b);
+                add_node(children, c);
+                add_node(children, d);
+                add_node(children, e);
+                printLinkedList(children);
+                del_node(children, a);
+                del_node(children, c);
+                del_node(children, e);
+                printLinkedList(children);
+            } else if (strcmp(command, "cd") == 0) {
+
+                printf("%s", command);
+            } else if (strcmp(command, "status") == 0) {
+                printf("%s", command);
+            }
         }
     }
-
     return EXIT_SUCCESS;
 }
 
@@ -48,12 +51,13 @@ int main() {
     Function: parse_input: parses the user input to the command line
     Params: none
     Returns: pointer to a command line struct saved (calloced) in memory
-    Citation: based on the sample parsing program given with assignment 4.
+    *Citation: based on the sample parsing program given with assignment 4.
 */
 struct command_line *parse_input() {
     char input[INPUT_LENGTH];
     struct command_line *curr_command = (struct command_line *) calloc(1, sizeof(struct command_line));
     char *savePtr;
+   
 
     // Get input
     printf(": ");

@@ -4,10 +4,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
 
+// *Citation: command_line struct based on the code provided with assignment 4.
 struct command_line {
     char *argv[MAX_ARGS + 1];
     int argc;
