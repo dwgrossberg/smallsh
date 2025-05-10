@@ -20,15 +20,18 @@ pid_t createProcess(int argc, char **argv, struct PID_llist *head) {
         exit(1);
     } else if (child > 0) {
         int status;
+        // Wait for child to complete process
         waitpid(child, &status, 0);
         printf("I am the parent!\n");
-
     } else {
         // Add child pid to LL
         pid_t child_pid = getpid();
-        add_node(head, child_pid);
-        printLinkedList(head);
-        printf("I am the child!\n");
+        printf("Executing child process.\n");
+        // Create new args array for execv command
+        char new_argv[argc + 1];
+        // Execute outside command
+        execv(argv[0], argv);
+        perror("execv");
         exit(0);
     }
     fflush(stdout);
