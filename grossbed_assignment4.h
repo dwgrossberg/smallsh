@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -31,3 +32,4 @@ void add_node(struct PID_llist *head, pid_t PID);
 struct PID_llist* del_node(struct PID_llist *head, pid_t PID);
 void printLinkedList(struct PID_llist *head);
 void change_dir(char *path);
+pid_t createProcess(int argc, char **argv, struct PID_llist *head);
