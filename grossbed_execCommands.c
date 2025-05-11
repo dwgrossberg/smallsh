@@ -9,9 +9,6 @@
 */
 pid_t createProcess(int argc, char **argv, struct PID_llist *head) {
     pid_t child = 5;
-    for (int i=0; i<argc;i++) {
-        printf("%s\n", argv[i]);
-    }
     // Implement outside commands
     // Fork the current process
     child = fork();
@@ -22,15 +19,23 @@ pid_t createProcess(int argc, char **argv, struct PID_llist *head) {
         int status;
         // Wait for child to complete process
         waitpid(child, &status, 0);
-        printf("I am the parent!\n");
     } else {
         // Add child pid to LL
         pid_t child_pid = getpid();
-        printf("Executing child process.\n");
+        add_node(head, child_pid);
         // Create new args array for execv command
-        char new_argv[argc + 1];
+        char *new_argv[argc + 1];
+        char path[strlen(argv[0]) + 5];
+        strcpy(path, "/bin/");
+        strcat(path, argv[0]);
+        new_argv[0] = path;
+        int i = 1;
+        for (i; i<argc; i++) {
+            new_argv[i] = argv[i];
+        }
+        new_argv[i] = NULL;
         // Execute outside command
-        execv(argv[0], argv);
+        execv(new_argv[0], new_argv);
         perror("execv");
         exit(0);
     }

@@ -28,7 +28,6 @@ void change_dir(char *path) {
     char buf[_PATH_MAX];
     if (path != NULL) {
         cwd = getcwd(buf, _PATH_MAX);
-        printf("%s\n", cwd);
         chdir(path);
         cwd = getcwd(buf, _PATH_MAX);
         printf("%s\n", cwd);
