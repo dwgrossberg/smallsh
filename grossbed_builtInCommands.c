@@ -21,16 +21,25 @@ void exit_shell(struct PID_llist *children) {
 /*
     Function: change_dir: changes the current working directory of the shell
     Params: path: pointer to char array = argv[1]
-    Returns: none
+    Returns: int: 1 for error, 0 for success
 */
-void change_dir(char *path) {
+int change_dir(char *path) {
     char *cwd;
     char buf[_PATH_MAX];
     if (path != NULL) {
-        cwd = getcwd(buf, _PATH_MAX);
-        chdir(path);
-        cwd = getcwd(buf, _PATH_MAX);
-        printf("%s\n", cwd);
-        fflush(stdout);
+        if (!chdir(path)) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
+}
+
+/*
+    Function: status: provides the exit_status or termination status of the previous foreground process
+    Params: none
+    Returns: int: 1 for error, 0 for success
+*/
+int status(int exit_status) {
+    printf("exit value %d\n", exit_status);
 }

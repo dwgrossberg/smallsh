@@ -11,6 +11,7 @@ int main() {
     // Save child process IDs
     struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
     char *command;
+    int exit_status = 0;
     
     while (true) {
         curr_command = parse_input();
@@ -20,12 +21,24 @@ int main() {
             if (!strcmp(command, "exit")) {
                 exit_shell(children);
             } else if (!strcmp(command, "cd")) {
-                change_dir(curr_command->argv[1]);
+                if (!change_dir(curr_command->argv[1])) {
+                    exit_status = 1;
+                } else {
+                    exit_status = 0;
+                }
             } else if (!strcmp(command, "status")) {
-                printf("%s", command);
+                if (!status(exit_status)) {
+                    exit_status = 1;
+                } else {
+                    exit_status = 0;
+                }
             } else {
                 // Execute other functions if not a comment
-                createProcess(curr_command->argc, curr_command->argv, children);
+                if (createProcess(curr_command->argc, curr_command->argv, children)) {
+                    exit_status = 1;
+                } else {
+                    exit_status = 0;
+                }
             }       
         }
     }

@@ -31,5 +31,6 @@ void exit_shell(struct PID_llist *);
 void add_node(struct PID_llist *head, pid_t PID);
 struct PID_llist* del_node(struct PID_llist *head, pid_t PID);
 void printLinkedList(struct PID_llist *head);
-void change_dir(char *path);
-void createProcess(int argc, char **argv, struct PID_llist *head);
+int change_dir(char *path);
+int status(int exit_status);
+int createProcess(int argc, char **argv, struct PID_llist *head);
