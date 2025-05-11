@@ -32,4 +32,4 @@ void add_node(struct PID_llist *head, pid_t PID);
 struct PID_llist* del_node(struct PID_llist *head, pid_t PID);
 void printLinkedList(struct PID_llist *head);
 void change_dir(char *path);
-pid_t createProcess(int argc, char **argv, struct PID_llist *head);
+void createProcess(int argc, char **argv, struct PID_llist *head);

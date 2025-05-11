@@ -1,13 +1,13 @@
 #include "grossbed_assignment4.h"
+#define _PATH_MAX 1024
 #define MAX_ARGS 512
 
 /*
-    Function: parse_input: parses the user input to the command line
-    Params: none
-    Returns: pointer to a command line struct saved (calloced) in memory
-    *Citation: based on the sample parsing program given with assignment 4.
+    Function: createProcess - creates a new process to handle outside coammnds
+    Params: int argc - length of input array, char **argv - intial argument array passed by user, pointer to head of PID_llist
+    Returns: none
 */
-pid_t createProcess(int argc, char **argv, struct PID_llist *head) {
+void createProcess(int argc, char **argv, struct PID_llist *head) {
     pid_t child = 5;
     // Implement outside commands
     // Fork the current process
@@ -23,19 +23,16 @@ pid_t createProcess(int argc, char **argv, struct PID_llist *head) {
         // Add child pid to LL
         pid_t child_pid = getpid();
         add_node(head, child_pid);
+
         // Create new args array for execv command
         char *new_argv[argc + 1];
-        char path[strlen(argv[0]) + 5];
-        strcpy(path, "/bin/");
-        strcat(path, argv[0]);
-        new_argv[0] = path;
-        int i = 1;
+        int i = 0;
         for (i; i<argc; i++) {
             new_argv[i] = argv[i];
         }
         new_argv[i] = NULL;
         // Execute outside command
-        execv(new_argv[0], new_argv);
+        execvp(new_argv[0], new_argv);
         perror("execv");
         exit(0);
     }

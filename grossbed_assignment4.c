@@ -17,14 +17,14 @@ int main() {
         // Check for built-in command
         command = curr_command->argv[0];
         if (command != NULL) {
-            if (strcmp(command, "exit") == 0) {
+            if (!strcmp(command, "exit")) {
                 exit_shell(children);
-            } else if (strcmp(command, "cd") == 0) {
+            } else if (!strcmp(command, "cd")) {
                 change_dir(curr_command->argv[1]);
-            } else if (strcmp(command, "status") == 0) {
+            } else if (!strcmp(command, "status")) {
                 printf("%s", command);
             } else {
-                // Execute other functions
+                // Execute other functions if not a comment
                 createProcess(curr_command->argc, curr_command->argv, children);
             }       
         }
@@ -48,11 +48,10 @@ struct command_line *parse_input() {
     printf(": ");
     fflush(stdout);
     fgets(input, INPUT_LENGTH, stdin);
-
     // Tokenize the input
     char *token = strtok_r(input, "# \n", &savePtr);
 
-    while (token) {
+    while (token && input[0] != '#' && input[0] != ' ') {
         // Skip comments
         if (!strcmp(token, "#")) {
             break;
