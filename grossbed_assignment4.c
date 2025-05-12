@@ -17,7 +17,6 @@ int main() {
         curr_command = parse_input();
         // Check for built-in command
         command = curr_command->argv[0];
-        printf("%s, %s\n", curr_command->input_file, curr_command->output_file);
         if (command != NULL) {
             if (!strcmp(command, "exit")) {
                 exit_shell(children);
@@ -37,7 +36,7 @@ int main() {
                 // Execute other functions if not a comment
                 // Handle commands with stdin or stdout redirection
                 if (curr_command->input_file != NULL || curr_command->output_file != NULL) {
-                    if (redirectStd(curr_command)) {
+                    if (redirectStd(curr_command, children)) {
                         exit_status = 1;
                     } else {
                         exit_status = 0;
@@ -49,7 +48,6 @@ int main() {
                     } else {
                         exit_status = 0;
                     }
-                   
                 }
             }       
         }

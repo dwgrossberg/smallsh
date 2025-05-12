@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
@@ -34,4 +35,4 @@ void printLinkedList(struct PID_llist *head);
 int change_dir(char *path);
 int status(int exit_status);
 int createProcess(int argc, char **argv, struct PID_llist *head);
-int redirectStd(struct command_line *curr_command);
+int redirectStd(struct command_line *curr_command, struct PID_llist *head);
