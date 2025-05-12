@@ -34,3 +34,4 @@ void printLinkedList(struct PID_llist *head);
 int change_dir(char *path);
 int status(int exit_status);
 int createProcess(int argc, char **argv, struct PID_llist *head);
+int redirectStd(struct command_line *curr_command);

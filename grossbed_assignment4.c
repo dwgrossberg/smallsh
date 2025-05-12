@@ -17,6 +17,7 @@ int main() {
         curr_command = parse_input();
         // Check for built-in command
         command = curr_command->argv[0];
+        printf("%s, %s\n", curr_command->input_file, curr_command->output_file);
         if (command != NULL) {
             if (!strcmp(command, "exit")) {
                 exit_shell(children);
@@ -34,10 +35,21 @@ int main() {
                 }
             } else {
                 // Execute other functions if not a comment
-                if (createProcess(curr_command->argc, curr_command->argv, children)) {
-                    exit_status = 1;
+                // Handle commands with stdin or stdout redirection
+                if (curr_command->input_file != NULL || curr_command->output_file != NULL) {
+                    if (redirectStd(curr_command)) {
+                        exit_status = 1;
+                    } else {
+                        exit_status = 0;
+                    }
                 } else {
-                    exit_status = 0;
+                    //Handle exec without stdin and or stdout redirection
+                    if (createProcess(curr_command->argc, curr_command->argv, children)) {
+                        exit_status = 1;
+                    } else {
+                        exit_status = 0;
+                    }
+                   
                 }
             }       
         }
@@ -53,16 +65,14 @@ int main() {
 */
 struct command_line *parse_input() {
     char input[INPUT_LENGTH];
-    struct command_line *curr_command = (struct command_line *) calloc(1, sizeof(struct command_line));
-    char *savePtr;
-   
+    struct command_line *curr_command = (struct command_line *) calloc(1, sizeof(struct command_line));   
 
     // Get input
     printf(": ");
     fflush(stdout);
     fgets(input, INPUT_LENGTH, stdin);
     // Tokenize the input
-    char *token = strtok_r(input, "# \n", &savePtr);
+    char *token = strtok(input, " \n");
 
     while (token && input[0] != '#' && input[0] != ' ') {
         // Skip comments
@@ -77,7 +87,7 @@ struct command_line *parse_input() {
         } else{
             curr_command->argv[curr_command->argc++] = strdup(token);
         }
-        token=strtok_r(NULL," \n", &savePtr);
+        token=strtok(NULL," \n");
     }
     return curr_command;
 }
