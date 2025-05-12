@@ -8,8 +8,10 @@
 int createProcess(int argc, char **argv, struct PID_llist *head) {
     pid_t child = 5;
     int status;
+    
     // Fork the current process
     child = fork();
+
     if (child < 0) {
         perror("fork() failed!");
         exit(1);
@@ -26,7 +28,6 @@ int createProcess(int argc, char **argv, struct PID_llist *head) {
             char *new_argv[argc + 1];
             int i = 0;
             for (i; i<argc; i++) {
-                printf("%s\n", argv[i]);
                 new_argv[i] = argv[i];
             }
             new_argv[i] = NULL;
@@ -51,6 +52,7 @@ int createProcess(int argc, char **argv, struct PID_llist *head) {
 */
 int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
     int result;
+    printf("%s, %s, %s", curr_command->argv[0], curr_command->input_file, curr_command->output_file);
     if (curr_command->input_file != NULL) {
         // Open source file
         int source_FD = open(curr_command->input_file, O_RDONLY);
@@ -66,6 +68,7 @@ int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
         }
         fcntl(source_FD, F_SETFD, FD_CLOEXEC);
     }
+
     if (curr_command->output_file != NULL) {
         // Open target file
         int target_FD = open(curr_command->output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -81,6 +84,7 @@ int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
         }
         fcntl(target_FD, F_SETFD, FD_CLOEXEC);
     }
+
     // Run the outside command
     if (createProcess(curr_command->argc, curr_command->argv, head)) {
         return 1;
