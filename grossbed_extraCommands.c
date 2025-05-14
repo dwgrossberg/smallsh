@@ -19,6 +19,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         if (is_bg) {
             // Handle child process in the background
             waitpid(child, &status, WNOHANG);
+            printf("background pid is %d\n", child);
         } else {
             // Wait for child to complete process
             waitpid(child, &status, 0);
@@ -28,7 +29,8 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         pid_t child_pid = getpid();
 
         // Handle commands with stdin or stdout redirection
-        if (redirectStd(input_file, output_file)) {
+        if (redirectStdIO(input_file, output_file)) {
+            printf("background pid %d is done: exit value %d\n", child_pid, 1);
             exit(1);
         } 
 
@@ -46,13 +48,15 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
             // Execute outside command
             if (execvp(new_argv[0], new_argv) != 0 ) {
                 perror("execvp");
-                return 1;
+                printf("background pid %d is done: exit value %d\n", child_pid, 1);
+                exit(1);
             }
-            
+            printf("background pid %d is done: exit value %d\n", child_pid, 0);
             fflush(stdout);
-            return 0;
+            exit(0);
         } else {
-            return 1;
+            printf("background pid %d is done: exit value %d\n", child_pid, 1);
+            exit(1);
         }
     }
 }
@@ -63,7 +67,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
     Returns: int: 1 for error, 0 for success
     Citation: function based on examples of redirecting stdin/stdout from the course modules
 */
-int redirectStd(char *input_file, char *output_file) {
+int redirectStdIO(char *input_file, char *output_file) {
     int result;
     if (input_file != NULL) {
         // Open source file
