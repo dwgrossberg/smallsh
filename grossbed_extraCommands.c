@@ -5,7 +5,7 @@
     Params: int argc - length of input array, char **argv - intial argument array passed by user, pointer to head of PID_llist
     Returns: int: 1 for error, 0 for success
 */
-int createProcess(int argc, char **argv, char *input_file, char *output_file, struct PID_llist *head) {
+int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head) {
     pid_t child = 5;
     int status;
     
@@ -16,8 +16,13 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, st
         perror("fork() failed!");
         exit(1);
     } else if (child > 0) {
-        // Wait for child to complete process
-        waitpid(child, &status, 0);
+        if (is_bg) {
+            // Handle child process in the background
+            waitpid(child, &status, WNOHANG);
+        } else {
+            // Wait for child to complete process
+            waitpid(child, &status, 0);
+        }
     } else {
         // Add child pid to LL
         pid_t child_pid = getpid();
