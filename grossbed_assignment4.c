@@ -34,21 +34,15 @@ int main() {
                 }
             } else {
                 // Execute other functions if not a comment
-                // Handle commands with stdin or stdout redirection
-                if (curr_command->input_file != NULL || curr_command->output_file != NULL) {
-                    if (redirectStd(curr_command, children)) {
-                        exit_status = 1;
-                    } else {
-                        exit_status = 0;
-                    }
-                } else {
+                
+                
                     //Handle exec without stdin and or stdout redirection
-                    if (createProcess(curr_command->argc, curr_command->argv, children)) {
+                    if (createProcess(curr_command->argc, curr_command->argv, curr_command->input_file, curr_command->output_file, children)) {
                         exit_status = 1;
                     } else {
                         exit_status = 0;
                     }
-                }
+                
             }       
         }
     }

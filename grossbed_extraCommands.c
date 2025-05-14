@@ -5,7 +5,7 @@
     Params: int argc - length of input array, char **argv - intial argument array passed by user, pointer to head of PID_llist
     Returns: int: 1 for error, 0 for success
 */
-int createProcess(int argc, char **argv, struct PID_llist *head) {
+int createProcess(int argc, char **argv, char *input_file, char *output_file, struct PID_llist *head) {
     pid_t child = 5;
     int status;
     
@@ -21,6 +21,12 @@ int createProcess(int argc, char **argv, struct PID_llist *head) {
     } else {
         // Add child pid to LL
         pid_t child_pid = getpid();
+
+        // Handle commands with stdin or stdout redirection
+        if (redirectStd(input_file, output_file)) {
+            exit(1);
+        } 
+
         // Check child executed successfully
         if(WIFEXITED(status)) {
             add_node(head, child_pid);
@@ -31,11 +37,13 @@ int createProcess(int argc, char **argv, struct PID_llist *head) {
                 new_argv[i] = argv[i];
             }
             new_argv[i] = NULL;
+
             // Execute outside command
             if (execvp(new_argv[0], new_argv) != 0 ) {
                 perror("execvp");
                 return 1;
             }
+            
             fflush(stdout);
             return 0;
         } else {
@@ -50,12 +58,11 @@ int createProcess(int argc, char **argv, struct PID_llist *head) {
     Returns: int: 1 for error, 0 for success
     Citation: function based on examples of redirecting stdin/stdout from the course modules
 */
-int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
+int redirectStd(char *input_file, char *output_file) {
     int result;
-    printf("%s, %s, %s", curr_command->argv[0], curr_command->input_file, curr_command->output_file);
-    if (curr_command->input_file != NULL) {
+    if (input_file != NULL) {
         // Open source file
-        int source_FD = open(curr_command->input_file, O_RDONLY);
+        int source_FD = open(input_file, O_RDONLY);
         if (source_FD == -1) { 
             perror("source open()"); 
             exit(1); 
@@ -69,9 +76,9 @@ int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
         fcntl(source_FD, F_SETFD, FD_CLOEXEC);
     }
 
-    if (curr_command->output_file != NULL) {
+    if (output_file != NULL) {
         // Open target file
-        int target_FD = open(curr_command->output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        int target_FD = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (target_FD == -1) { 
             perror("target open()"); 
             exit(1); 
@@ -85,10 +92,4 @@ int redirectStd(struct command_line *curr_command, struct PID_llist *head) {
         fcntl(target_FD, F_SETFD, FD_CLOEXEC);
     }
 
-    // Run the outside command
-    if (createProcess(curr_command->argc, curr_command->argv, head)) {
-        return 1;
-    } else {
-        return 0;
-    }
 }
