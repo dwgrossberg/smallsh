@@ -52,7 +52,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
             waitpid(child, &status, 0);   
         }
     }
-    printf("The process with pid %d is exiting\n", getpid());
+    //printf("The process with pid %d is exiting\n", getpid());
     return 0;
 }
 
