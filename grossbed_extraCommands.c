@@ -8,40 +8,14 @@
 int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head) {
     pid_t child = 5;
     int status;
-    
+
     // Fork the current process
     child = fork();
 
     if (child < 0) {
         perror("fork() failed!");
-        return 1;
-    } else if (child == 0) {
-        // Child process
-        // Add child pid to LL
-        pid_t child_pid = getpid();
-
-        // Handle commands with stdin or stdout redirection
-        if (redirectStdIO(input_file, output_file)) {
-            return 1;
-        } 
-
-        // Check child executed successfully
-        add_node(head, child_pid);
-        // Create new args array for execv command
-        char *new_argv[argc + 1];
-        int i = 0;
-        for (i; i<argc; i++) {
-            new_argv[i] = argv[i];
-        }
-        new_argv[i] = NULL;
-
-        // Execute outside command
-        if (execvp(new_argv[0], new_argv) != 0 ) {
-            perror("execvp");
-            return 1;
-        }
-        fflush(stdout);
-    } else {
+        exit(1);
+    } else if (child > 0) {
         // Parent process
         if (is_bg) {
             // Handle child process in the background
@@ -51,9 +25,38 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
             // Wait for child to complete process
             waitpid(child, &status, 0);   
         }
+    } else {
+        // Add child pid to LL
+        pid_t child_pid = getpid();
+
+        // Handle commands with stdin or stdout redirection
+        if (redirectStdIO(input_file, output_file)) {
+            exit(1);
+        } 
+
+        // Check child executed successfully
+        if(WIFEXITED(status)) {
+            add_node(head, child_pid);
+            // Create new args array for execv command
+            char *new_argv[argc + 1];
+            int i = 0;
+            for (i; i<argc; i++) {
+                new_argv[i] = argv[i];
+            }
+            new_argv[i] = NULL;
+
+            // Execute outside command
+            if (execvp(new_argv[0], new_argv) != 0 ) {
+                perror("execvp");
+                return 1;
+            }
+            
+            fflush(stdout);
+            return 0;
+        } else {
+            return 1;
+        }
     }
-    //printf("The process with pid %d is exiting\n", getpid());
-    return 0;
 }
 
 /*
@@ -69,13 +72,13 @@ int redirectStdIO(char *input_file, char *output_file) {
         int source_FD = open(input_file, O_RDONLY);
         if (source_FD == -1) { 
             perror("source open()"); 
-            return 1; 
+            exit(1); 
         }
         // Redirect stdin to source file
         result = dup2(source_FD, 0);
         if (result == -1) { 
             perror("source dup2()"); 
-            return 1; 
+            exit(2); 
         }
         fcntl(source_FD, F_SETFD, FD_CLOEXEC);
     }
@@ -85,13 +88,13 @@ int redirectStdIO(char *input_file, char *output_file) {
         int target_FD = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (target_FD == -1) { 
             perror("target open()"); 
-            return 1; 
+            exit(1); 
         }
         // Redirect stdout to target file
         result = dup2(target_FD, 1);
         if (result == -1) { 
             perror("target dup2()"); 
-            return 1; 
+            exit(2); 
         }
         fcntl(target_FD, F_SETFD, FD_CLOEXEC);
     }
