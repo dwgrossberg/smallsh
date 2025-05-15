@@ -4,6 +4,7 @@
     Program Name: grossbed_assignment4.c
     Author: Daniel Grossberg
     This program implements a subset of features of well-known shells, such as bash.
+    *Citation: SIGINT and SIGSTP handlers based on examples from the Signals Handling API module
 */
 
 int main() {
@@ -12,6 +13,22 @@ int main() {
     struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
     char *command;
     int exit_status = 0;
+
+    // Handle SIGINT
+    // Initialize SIGINT_action struct to be empty
+    struct sigaction SIGINT_action = {0};
+
+    // Fill out the SIGINT_action struct
+    // Register handle_SIGINT as the signal handler
+    SIGINT_action.sa_handler = handleSIGINT;
+    // Block all catchable signals while handle_SIGINT is running
+    sigfillset(&SIGINT_action.sa_mask);
+    // No flags set
+    SIGINT_action.sa_flags = 0;
+
+    // Install our signal handler
+    sigaction(SIGINT, &SIGINT_action, NULL);
+    fflush(stdout);
     
     while (true) {
         curr_command = parse_input();

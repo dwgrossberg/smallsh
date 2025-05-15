@@ -36,4 +36,5 @@ int change_dir(char *path);
 int status(int exit_status);
 int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head);
 int redirectStdIO(char *input_file, char *output_file, bool is_bg);
-void handleSigchld(int sig);
+void handleSIGCHILD(int sig);
+void handleSIGINT(int sig);

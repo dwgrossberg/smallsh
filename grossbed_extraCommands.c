@@ -11,7 +11,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
 
     // Set up signal handler for SIGCHLD
     struct sigaction sa;
-    sa.sa_handler = handleSigchld;
+    sa.sa_handler = handleSIGCHILD;
     // Catch all signals
     sigemptyset(&sa.sa_mask);
     // Prevent handler from being called when child is stopped && restart interrupted children 
@@ -136,12 +136,12 @@ int redirectStdIO(char *input_file, char *output_file, bool is_bg) {
 }
 
 /*
-    Function: handleSigchild - handler function to catch child process termination signal
+    Function: handleSIGCHILD - handler function to catch child process termination signal
     Params: int sig 
     Returns: none
-    Citation: function adapted from module on Signal Handling API
+    *Citation: function adapted from module on Signal Handling API
 */
-void handleSigchld(int sig) {
+void handleSIGCHILD(int sig) {
     int status;
     pid_t pid;
 
@@ -153,4 +153,11 @@ void handleSigchld(int sig) {
             printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
         }
     }
+}
+
+void handleSIGINT(int sig){
+  char* message = "Caught SIGINT, sleeping for 10 seconds\n";
+  // We are using write rather than printf
+  write(STDOUT_FILENO, message, 39);
+  sleep(10);
 }
