@@ -150,7 +150,7 @@ void handleSigchld(int sig) {
         if (WIFEXITED(status)) {
             printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
-            printf("\nbackground pid %d is done: exit value %d\n", pid, WTERMSIG(status));
+            printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
         }
     }
 }
