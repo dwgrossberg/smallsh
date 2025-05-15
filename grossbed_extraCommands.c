@@ -12,12 +12,13 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
     // Set up signal handler for SIGCHLD
     struct sigaction sa;
     sa.sa_handler = handleSigchld;
+    // Catch all signals
     sigemptyset(&sa.sa_mask);
-    // Prevent handler from begin called when child is interrupted 
+    // Prevent handler from being called when child is stopped && restart interrupted children 
     sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
     if (sigaction(SIGCHLD, &sa, 0) == -1) {
         perror("sigaction");
-        exit(1);
+        return 1;
     }
 
     // Fork the current process
@@ -30,7 +31,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         pid_t child_pid = getpid();
 
         // Handle commands with stdin or stdout redirection
-        if (redirectStdIO(input_file, output_file)) {
+        if (redirectStdIO(input_file, output_file, is_bg)) {
             return 1;
         } 
 
@@ -70,11 +71,25 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
     Returns: int: 1 for error, 0 for success
     Citation: function based on examples of redirecting stdin/stdout from the course modules
 */
-int redirectStdIO(char *input_file, char *output_file) {
+int redirectStdIO(char *input_file, char *output_file, bool is_bg) {
     int result;
     if (input_file != NULL) {
         // Open source file
         int source_FD = open(input_file, O_RDONLY);
+        if (source_FD == -1) { 
+            perror("source open()"); 
+            return 1; 
+        }
+        // Redirect stdin to source file
+        result = dup2(source_FD, 0);
+        if (result == -1) { 
+            perror("source dup2()"); 
+            return 1; 
+        }
+        fcntl(source_FD, F_SETFD, FD_CLOEXEC);
+    } else if (is_bg) {
+        // Open default bg stdin file
+        int source_FD = open("/dev/null", O_RDONLY);
         if (source_FD == -1) { 
             perror("source open()"); 
             return 1; 
@@ -91,6 +106,20 @@ int redirectStdIO(char *input_file, char *output_file) {
     if (output_file != NULL) {
         // Open target file
         int target_FD = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (target_FD == -1) { 
+            perror("target open()"); 
+            return 1; 
+        }
+        // Redirect stdout to target file
+        result = dup2(target_FD, 1);
+        if (result == -1) { 
+            perror("target dup2()"); 
+            return 1; 
+        }
+        fcntl(target_FD, F_SETFD, FD_CLOEXEC);
+    } else if (is_bg) {
+        // Open default bg stdout file
+        int target_FD = open("/dev/null", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (target_FD == -1) { 
             perror("target open()"); 
             return 1; 
