@@ -14,7 +14,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
 
     if (child < 0) {
         perror("fork() failed!");
-        return EXIT_FAILURE;
+        return 1;
     } else if (child == 0) {
         // Child process
         // Add child pid to LL
@@ -22,7 +22,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
 
         // Handle commands with stdin or stdout redirection
         if (redirectStdIO(input_file, output_file)) {
-            return EXIT_FAILURE;
+            return 1;
         } 
 
         // Check child executed successfully
@@ -38,7 +38,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         // Execute outside command
         if (execvp(new_argv[0], new_argv) != 0 ) {
             perror("execvp");
-            return EXIT_FAILURE;
+            return 1;
         }
         fflush(stdout);
     } else {
@@ -53,7 +53,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         }
     }
     printf("The process with pid %d is exiting\n", getpid());
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 /*
@@ -69,13 +69,13 @@ int redirectStdIO(char *input_file, char *output_file) {
         int source_FD = open(input_file, O_RDONLY);
         if (source_FD == -1) { 
             perror("source open()"); 
-            return EXIT_FAILURE; 
+            return 1; 
         }
         // Redirect stdin to source file
         result = dup2(source_FD, 0);
         if (result == -1) { 
             perror("source dup2()"); 
-            return EXIT_FAILURE; 
+            return 1; 
         }
         fcntl(source_FD, F_SETFD, FD_CLOEXEC);
     }
@@ -85,15 +85,15 @@ int redirectStdIO(char *input_file, char *output_file) {
         int target_FD = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (target_FD == -1) { 
             perror("target open()"); 
-            return EXIT_FAILURE; 
+            return 1; 
         }
         // Redirect stdout to target file
         result = dup2(target_FD, 1);
         if (result == -1) { 
             perror("target dup2()"); 
-            return EXIT_FAILURE; 
+            return 1; 
         }
         fcntl(target_FD, F_SETFD, FD_CLOEXEC);
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
