@@ -4,6 +4,8 @@
     Function: createProcess - creates a new process to handle outside commands
     Params: int argc - length of input array, char **argv - intial argument array passed by user, pointer to head of PID_llist
     Returns: int: 1 for error, 0 for success
+    *Citation: SIGCHILD handler details based on stackOverflow answers, such as the following: https://stackoverflow.com/questions/7171722/how-can-i-handle-sigchld
+    *Citation: SIGINT and SIGSTP handlers based on examples from the Signals Handling API module
 */
 int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head) {
     pid_t child = 5;
@@ -20,6 +22,20 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         perror("sigaction");
         return 1;
     }
+    fflush(stdout);
+
+    // Set up signal handler for SIGINT
+    struct sigaction SIGINT_catch = {0};
+    // Register handle_SIGINT as a signal handler
+    SIGINT_catch.sa_handler = handleSIGINT;
+    // Block all catchable signals while handle_SIGINT is running
+    sigfillset(&SIGINT_catch.sa_mask);
+    // No flags set
+    SIGINT_catch.sa_flags = 0;
+
+    // Install our signal handler
+    sigaction(SIGINT, &SIGINT_catch, NULL);
+    fflush(stdout);
 
     // Fork the current process
     child = fork();
@@ -28,6 +44,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         perror("fork() failed!");
         return 1;
     } else if (child == 0) {
+        // Child process
         pid_t child_pid = getpid();
 
         // Handle commands with stdin or stdout redirection
@@ -155,9 +172,16 @@ void handleSIGCHILD(int sig) {
     }
 }
 
-void handleSIGINT(int sig){
-  char* message = "Caught SIGINT, sleeping for 10 seconds\n";
-  // We are using write rather than printf
-  write(STDOUT_FILENO, message, 39);
-  sleep(10);
+void handleSIGINT(int sig) {
+    int status;
+    pid_t pid;
+    
+    // Catch all terminated child processes
+    while ((pid = waitpid(-1, &status, 0)) > 0) {
+        if (WIFEXITED(status)) {
+            printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
+        }
+    }
 }
