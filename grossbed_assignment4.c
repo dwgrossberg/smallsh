@@ -12,31 +12,6 @@ int main() {
     struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
     char *command;
     int exit_status = 0;
-
-    char *current_path = getenv("PATH");
-  char current_dir[1024];
-
-  if (getcwd(current_dir, sizeof(current_dir)) == NULL) {
-    perror("getcwd");
-    return 1;
-  }
-
-  char *new_path = malloc(strlen(current_path) + strlen(current_dir) + 2);
-  if (new_path == NULL) {
-    perror("malloc");
-    return 1;
-  }
-
-  sprintf(new_path, "%s:%s", current_dir, current_path);
-
-  if (setenv("PATH", new_path, 1) != 0) {
-    perror("setenv");
-    free(new_path);
-    return 1;
-  }
-
-  free(new_path);
-
     
     while (true) {
         curr_command = parse_input();
