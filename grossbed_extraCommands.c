@@ -163,7 +163,7 @@ void handleSIGCHILD(int sig) {
     pid_t pid;
 
     // Catch all terminated child processes
-    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+    while ((pid = waitpid(getpgrp(), &status, WNOHANG)) > 0) {
         if (WIFEXITED(status)) {
             printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
@@ -177,7 +177,7 @@ void handleSIGINT(int sig) {
     pid_t pid;
     
     // Catch all terminated child processes
-    while ((pid = waitpid(-1, &status, 0)) > 0) {
+    while ((pid = waitpid(getpgrp(), &status, 0)) > 0) {
         if (WIFEXITED(status)) {
             printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
