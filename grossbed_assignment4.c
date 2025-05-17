@@ -11,7 +11,10 @@ int main() {
     // Save child process IDs
     struct PID_llist *children = (struct PID_llist *) malloc(sizeof(struct PID_llist));
     char *command;
+    char *home = "HOME";
     int exit_status = 0;
+
+    setenv(home, "pwd", 0);
     
     while (true) {
         curr_command = parse_input();

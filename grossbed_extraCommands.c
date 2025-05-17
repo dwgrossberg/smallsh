@@ -47,7 +47,10 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         // Child process
         pid_t child_pid = getpid();
 
-        signal(SIGINT, SIG_IGN);
+        // Set child to ignore SIGINT signals if running in bg
+        if (is_bg) {
+            signal(SIGINT, SIG_IGN);
+        }
 
         // Handle commands with stdin or stdout redirection
         if (redirectStdIO(input_file, output_file, is_bg)) {
@@ -172,18 +175,24 @@ void handleSIGCHILD(int sig) {
             printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
         }
     }
+    fflush(stdout);
 }
 
 void handleSIGINT(int sig) {
     int status;
     pid_t pid;
+    char buffer[256];
     
-    // Catch all terminated child processes
+    // Catch all SIGINT signals
+    // waitpid must include WNOHANG flag to continue with shell operations
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-        if (WIFEXITED(status)) {
-            printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
-        } else if (WIFSIGNALED(status)) {
+        if (WIFSIGNALED(status)) {
             printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
         }
     }
+    printf("terminated by signal %d\n: ", sig);
+
+    // Clear stdin
+    fgets(buffer, sizeof(buffer), stdin);
+    fflush(stdout);
 }
