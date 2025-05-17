@@ -47,6 +47,8 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         // Child process
         pid_t child_pid = getpid();
 
+        signal(SIGINT, SIG_IGN);
+
         // Handle commands with stdin or stdout redirection
         if (redirectStdIO(input_file, output_file, is_bg)) {
             return 1;
@@ -177,7 +179,7 @@ void handleSIGINT(int sig) {
     pid_t pid;
     
     // Catch all terminated child processes
-    while ((pid = waitpid(-1, &status, 0)) > 0) {
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
         if (WIFEXITED(status)) {
             printf("\nbackground pid %d is done: exit value %d\n", pid, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
