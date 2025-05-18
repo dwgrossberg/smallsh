@@ -192,7 +192,7 @@ void handleSIGINT(int sig) {
     }
     printf("terminated by signal %d\n: ", sig);
 
-    // Clear stdin
+    // Clear stdin/stdout
     fgets(buffer, sizeof(buffer), stdin);
     fflush(stdout);
 }

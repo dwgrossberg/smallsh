@@ -13,8 +13,6 @@ int main() {
     char *command;
     char *home = "HOME";
     int exit_status = 0;
-
-    setenv(home, "pwd", 0);
     
     while (true) {
         curr_command = parse_input();

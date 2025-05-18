@@ -32,6 +32,14 @@ int change_dir(char *path) {
         } else {
             return 1;
         }
+    } else {
+        // Set path to $HOME 
+        path = getenv("HOME");
+        if (!chdir(path)) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }
 
