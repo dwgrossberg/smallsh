@@ -12,29 +12,31 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
     int status;
 
     // Set up signal handler for SIGCHLD
-    struct sigaction sa;
-    sa.sa_handler = handleSIGCHILD;
+    struct sigaction SIGCHILD_catch;
+    SIGCHILD_catch.sa_handler = handleSIGCHILD;
     // Catch all signals
-    sigemptyset(&sa.sa_mask);
+    sigemptyset(&SIGCHILD_catch.sa_mask);
     // Prevent handler from being called when child is stopped && restart interrupted children 
-    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
-    if (sigaction(SIGCHLD, &sa, 0) == -1) {
+    SIGCHILD_catch.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    if (sigaction(SIGCHLD, &SIGCHILD_catch, 0) == -1) {
         perror("sigaction");
         return 1;
     }
     fflush(stdout);
 
     // Set up signal handler for SIGINT
-    struct sigaction SIGINT_catch = {0};
+    struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
     // Register handle_SIGINT as a signal handler
     SIGINT_catch.sa_handler = handleSIGINT;
+    SIGTERM_catch.sa_handler = SIG_IGN;
     // Block all catchable signals while handle_SIGINT is running
     sigfillset(&SIGINT_catch.sa_mask);
     // No flags set
     SIGINT_catch.sa_flags = 0;
 
-    // Install our signal handler
+    // Install signal handler
     sigaction(SIGINT, &SIGINT_catch, NULL);
+    sigaction(SIGTERM, &SIGTERM_catch, NULL);
     fflush(stdout);
 
     // Fork the current process
@@ -190,6 +192,21 @@ void handleSIGINT(int sig) {
             printf("\nbackground pid %d is done: terminated by signal %d\n", pid, WTERMSIG(status));
         }
     }
+    printf("terminated by signal %d\n: ", sig);
+
+    // Clear stdin/stdout
+    fgets(buffer, sizeof(buffer), stdin);
+    fflush(stdout);
+}
+
+void handleSIGTERM(int sig) {
+    int status;
+    pid_t pid;
+    char buffer[256];
+    
+    // Catch all SIGINT signals
+    // waitpid must include WNOHANG flag to continue with shell operations
+    
     printf("terminated by signal %d\n: ", sig);
 
     // Clear stdin/stdout
