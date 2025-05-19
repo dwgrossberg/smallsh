@@ -14,17 +14,6 @@ int main() {
     char *command;
     char *home = "HOME";
     int exit_status = 0;
-
-    // Set up signal handler for SIGINT
-    struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
-    // Register handle_SIGINT as a signal handler
-    SIGINT_catch.sa_handler = handleSIGINT;
-    // Block all catchable signals while handle_SIGINT is running
-    sigfillset(&SIGINT_catch.sa_mask);
-    // No flags set
-    SIGINT_catch.sa_flags = 0;
-    // Install signal handler
-    sigaction(SIGINT, &SIGINT_catch, NULL);
     
     // Set up signal handler for SIGTSTP
     struct sigaction SIGTSTP_catch;
@@ -39,7 +28,6 @@ int main() {
     
     while (true) {
         curr_command = parse_input();
-        // Check for built-in command
         command = curr_command->argv[0];
         if (command != NULL) {
             if (!strcmp(command, "exit")) {
