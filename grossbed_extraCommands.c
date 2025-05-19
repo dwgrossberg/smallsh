@@ -22,22 +22,17 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         perror("sigaction");
         return 1;
     }
-    fflush(stdout);
 
     // Set up signal handler for SIGINT
     struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
     // Register handle_SIGINT as a signal handler
     SIGINT_catch.sa_handler = handleSIGINT;
-    SIGTERM_catch.sa_handler = SIG_IGN;
     // Block all catchable signals while handle_SIGINT is running
     sigfillset(&SIGINT_catch.sa_mask);
     // No flags set
     SIGINT_catch.sa_flags = 0;
-
     // Install signal handler
     sigaction(SIGINT, &SIGINT_catch, NULL);
-    sigaction(SIGTERM, &SIGTERM_catch, NULL);
-    fflush(stdout);
 
     // Fork the current process
     child = fork();
@@ -199,7 +194,7 @@ void handleSIGINT(int sig) {
     fflush(stdout);
 }
 
-void handleSIGTERM(int sig) {
+void handleSIGTSTP(int sig) {
     int status;
     pid_t pid;
     char buffer[256];
@@ -207,7 +202,7 @@ void handleSIGTERM(int sig) {
     // Catch all SIGINT signals
     // waitpid must include WNOHANG flag to continue with shell operations
     
-    printf("terminated by signal %d\n: ", sig);
+    printf("Entering foreground-only mode (& is now ignored)\n: ");
 
     // Clear stdin/stdout
     fgets(buffer, sizeof(buffer), stdin);

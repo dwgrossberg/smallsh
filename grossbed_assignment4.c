@@ -4,7 +4,7 @@
     Program Name: grossbed_assignment4.c
     Author: Daniel Grossberg
     This program implements a subset of features of well-known shells, such as bash.
-    *Citation: SIGTERM handlers based on examples from the Signals Handling API module
+    *Citation: SIGTSTP handlers based on examples from the Signals Handling API module
 */
 
 int main() {
@@ -15,17 +15,16 @@ int main() {
     char *home = "HOME";
     int exit_status = 0;
 
-    // Set up signal handler for SIGTERM
-    struct sigaction SIGTERM_redirect;
+    // Set up signal handler for SIGTSTP
+    struct sigaction SIGTSTP_catch;
     // Register handle_SIGINT as a signal handler
-    SIGTERM_redirect.sa_handler = handleSIGTERM;
-    // Block all catchable signals while SIGTERM_redirect is running
-    sigemptyset(&SIGTERM_redirect.sa_mask);
+    SIGTSTP_catch.sa_handler = handleSIGTSTP;
+    // Block all catchable signals while SIGSIGTSTP_catchTERM_redirect is running
+    sigemptyset(&SIGTSTP_catch.sa_mask);
     // No flags set
-    SIGTERM_redirect.sa_flags = 0;
-
-    sigaction(SIGTERM, &SIGTERM_redirect, NULL);
-    fflush(stdout);
+    SIGTSTP_catch.sa_flags = 0;
+    // Install signal handler
+    sigaction(SIGTSTP, &SIGTSTP_catch, NULL);
     
     while (true) {
         curr_command = parse_input();
