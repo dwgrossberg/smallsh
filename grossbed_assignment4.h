@@ -38,4 +38,4 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
 int redirectStdIO(char *input_file, char *output_file, bool is_bg);
 void handleSIGCHILD(int sig);
 void handleSIGINT(int sig);
-void handleSIGTERM(int sig);
+void handleSIGTSTP(int sig);
