@@ -24,16 +24,6 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         return 1;
     }
 
-    // Set up signal handler for SIGINT
-    struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
-    // Register handle_SIGINT as a signal handler
-    SIGINT_catch.sa_handler = handleSIGINT;
-    // Block all catchable signals while handle_SIGINT is running
-    sigfillset(&SIGINT_catch.sa_mask);
-    // No flags set
-    SIGINT_catch.sa_flags = 0;
-    // Install signal handler
-    sigaction(SIGINT, &SIGINT_catch, NULL);
     // Fork the current process
     child = fork();
 
@@ -74,7 +64,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
     } else {
         // Parent process
         if (is_bg && !is_fo) {
-            bool BG = true;
+            BG = true;
             printf("background pid is %d\n", child);
             waitpid(child, &status, WNOHANG);
         } else {
@@ -165,15 +155,15 @@ void handleSIGCHILD(int sig) {
     pid_t pid;
 
     // Catch all terminated child processes
-    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+    while (BG && (pid = waitpid(-1, &status, WNOHANG)) > 0) {
         if (WIFEXITED(status)) {
-            char message[45];
-            sprintf(message, "\nbackground pid %d is done: exit value %d\n:", pid, WEXITSTATUS(status));
-            write(STDOUT_FILENO, message, 45);
+            char message[46];
+            sprintf(message, "\nbackground pid %d is done: exit value %d\n: ", pid, WEXITSTATUS(status));
+            write(STDOUT_FILENO, message, 46);
         } else if (WIFSIGNALED(status)) {
-            char message[55];
-            sprintf(message, "\nbackground pid %d is done: terminated by signal %d\n:", pid, WTERMSIG(status));
-            write(STDOUT_FILENO, message, 55);
+            char message[56];
+            sprintf(message, "\nbackground pid %d is done: terminated by signal %d\n: ", pid, WTERMSIG(status));
+            write(STDOUT_FILENO, message, 56);
         }
     }
     fflush(stdout);
@@ -190,11 +180,11 @@ void handleSIGINT(int sig) {
         if (WIFSIGNALED(status)) {
             char message[55];
             sprintf(message, "\nbackground pid %d is done: terminated by signal %d\n: ", pid, WTERMSIG(status));
-            write(STDOUT_FILENO, message, 53);
+            write(STDOUT_FILENO, message, 55);
         }
     }
     if (!BG) {
-        char message[27];
+        char message[26];
         sprintf(message, "terminated by signal %d\n: ", sig);
         write(STDOUT_FILENO, message, 26);
     }

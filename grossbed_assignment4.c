@@ -6,7 +6,7 @@ bool is_fo = false;
     Program Name: grossbed_assignment4.c
     Author: Daniel Grossberg
     This program implements a subset of features of well-known shells, such as bash.
-    *Citation: SIGTSTP handlers based on examples from the Signals Handling API module
+    *Citation: SIGINT and SIGTSTP handler process based on examples from the Signals Handling API module
 */
 
 int main() {
@@ -16,6 +16,17 @@ int main() {
     char *command;
     char *home = "HOME";
     int exit_status = 0;
+
+    // Set up signal handler for SIGINT
+    struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
+    // Register handle_SIGINT as a signal handler
+    SIGINT_catch.sa_handler = handleSIGINT;
+    // Block all catchable signals while handle_SIGINT is running
+    sigfillset(&SIGINT_catch.sa_mask);
+    // No flags set
+    SIGINT_catch.sa_flags = 0;
+    // Install signal handler
+    sigaction(SIGINT, &SIGINT_catch, NULL);
     
     // Set up signal handler for SIGTSTP
     struct sigaction SIGTSTP_catch;
@@ -24,7 +35,7 @@ int main() {
     // Block all catchable signals while SIGSIGTSTP_catchTERM_redirect is running
     sigemptyset(&SIGTSTP_catch.sa_mask);
     // No flags set
-    SIGTSTP_catch.sa_flags = 0;
+    SIGTSTP_catch.sa_flags = SA_RESTART;
     // Install signal handler
     sigaction(SIGTSTP, &SIGTSTP_catch, NULL);
     
@@ -100,13 +111,13 @@ void handleSIGTSTP(int sig) {
     char buffer[256];
     
     if (is_fo) {
-        char message[50] = "Exiting foreground-only mode\n";
+        char message[50] = "Exiting foreground-only mode\n: ";
         write(STDOUT_FILENO, message, 50);
         is_fo = false;
     } else {
         is_fo = true;
-        char message[54] = "Entering foreground-only mode (& is now ignored)\n";
-        write(STDOUT_FILENO, message, 54);
+        char message[56] = "Entering foreground-only mode (& is now ignored)\n: ";
+        write(STDOUT_FILENO, message, 56);
     }
 
     // Clear stdin/stdout
