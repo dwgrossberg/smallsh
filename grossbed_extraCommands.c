@@ -8,7 +8,7 @@ bool BG = false;
     *Citation: SIGCHILD handler details based on stackOverflow answers, such as the following: https://stackoverflow.com/questions/7171722/how-can-i-handle-sigchld
     *Citation: SIGINT and SIGSTP handlers based on examples from the Signals Handling API module
 */
-int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head) {
+int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, bool is_fo, struct PID_llist *head) {
     pid_t child = 5;
     int status;
 
@@ -73,7 +73,7 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         fflush(stdout);
     } else {
         // Parent process
-        if (is_bg) {
+        if (is_bg && !is_fo) {
             bool BG = true;
             printf("background pid is %d\n", child);
             waitpid(child, &status, WNOHANG);
@@ -197,31 +197,6 @@ void handleSIGINT(int sig) {
         char message[27];
         sprintf(message, "terminated by signal %d\n: ", sig);
         write(STDOUT_FILENO, message, 26);
-    }
-
-    // Clear stdin/stdout
-    fgets(buffer, sizeof(buffer), stdin);
-    fflush(stdout);
-}
-
-void handleSIGTSTP(int sig) {
-    int status;
-    pid_t pid;
-    char buffer[256];
-    
-    char message[54] = "Entering foreground-only mode (& is now ignored)\n";
-    write(STDOUT_FILENO, message, 54);
-
-    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-        if (WIFSIGNALED(status)) {
-            char message[55];
-            sprintf(message, "\nbackground pid %d is done: terminated by signal %d\n: ", pid, WTERMSIG(status));
-            write(STDOUT_FILENO, message, 53);
-        } else {
-            char message[27];
-            sprintf(message, "terminated by signal %d\n: ", sig);
-            write(STDOUT_FILENO, message, 26);
-        }
     }
 
     // Clear stdin/stdout

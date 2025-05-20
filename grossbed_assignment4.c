@@ -1,4 +1,6 @@
 #include "grossbed_assignment4.h"
+// Global is_foreground only var
+bool is_fo = false;
 
 /*  
     Program Name: grossbed_assignment4.c
@@ -46,7 +48,7 @@ int main() {
                 }
             } else {
                 // Execute other functions if not a comment
-                if (createProcess(curr_command->argc, curr_command->argv, curr_command->input_file, curr_command->output_file, curr_command->is_bg, children)) {
+                if (createProcess(curr_command->argc, curr_command->argv, curr_command->input_file, curr_command->output_file, curr_command->is_bg, is_fo, children)) {
                     exit_status = 1;
                 } else {
                     exit_status = 0;
@@ -90,4 +92,24 @@ struct command_line *parse_input() {
         token=strtok(NULL," \n");
     }
     return curr_command;
+}
+
+void handleSIGTSTP(int sig) {
+    int status;
+    pid_t pid;
+    char buffer[256];
+    
+    if (is_fo) {
+        char message[50] = "Exiting foreground-only mode\n";
+        write(STDOUT_FILENO, message, 50);
+        is_fo = false;
+    } else {
+        is_fo = true;
+        char message[54] = "Entering foreground-only mode (& is now ignored)\n";
+        write(STDOUT_FILENO, message, 54);
+    }
+
+    // Clear stdin/stdout
+    //fgets(buffer, sizeof(buffer), stdin);
+    fflush(stdout);
 }

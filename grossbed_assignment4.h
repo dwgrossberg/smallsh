@@ -34,7 +34,7 @@ struct PID_llist* del_node(struct PID_llist *head, pid_t PID);
 void printLinkedList(struct PID_llist *head);
 int change_dir(char *path);
 int status(int exit_status);
-int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, struct PID_llist *head);
+int createProcess(int argc, char **argv, char *input_file, char *output_file, bool is_bg, bool is_fo, struct PID_llist *head);
 int redirectStdIO(char *input_file, char *output_file, bool is_bg);
 void handleSIGCHILD(int sig);
 void handleSIGINT(int sig);
