@@ -183,7 +183,7 @@ void handleSIGINT(int sig) {
             write(STDOUT_FILENO, message, 55);
         }
     }
-    if (BG) {
+    if (!BG) {
         char message[26];
         sprintf(message, "terminated by signal %d\n: ", sig);
         write(STDOUT_FILENO, message, 26);
