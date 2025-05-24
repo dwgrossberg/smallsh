@@ -24,6 +24,17 @@ int createProcess(int argc, char **argv, char *input_file, char *output_file, bo
         return 1;
     }
 
+    // Set up signal handler for SIGINT
+    struct sigaction SIGINT_catch = {0}, SIGTERM_catch = {0};
+    // Register handle_SIGINT as a signal handler
+    SIGINT_catch.sa_handler = handleSIGINT;
+    // Block all catchable signals while handle_SIGINT is running
+    sigfillset(&SIGINT_catch.sa_mask);
+    // No flags set
+    SIGINT_catch.sa_flags = 0;
+    // Install signal handler
+    sigaction(SIGINT, &SIGINT_catch, NULL);
+
     // Fork the current process
     child = fork();
 
@@ -181,15 +192,14 @@ void handleSIGINT(int sig) {
             char message[55];
             sprintf(message, "\nbackground pid %d is done: terminated by signal %d\n: ", pid, WTERMSIG(status));
             write(STDOUT_FILENO, message, 55);
+        } else if (WIFSIGNALED(status)) {
+            char message[26];
+            sprintf(message, "terminated by signal %d\n: ", sig);
+            write(STDOUT_FILENO, message, 26);
         }
-    }
-    if (!BG) {
-        char message[26];
-        sprintf(message, "terminated by signal %d\n: ", sig);
-        write(STDOUT_FILENO, message, 26);
     }
 
     // Clear stdin/stdout
-    fgets(buffer, sizeof(buffer), stdin);
+    //fgets(buffer, sizeof(buffer), stdin);
     fflush(stdout);
 }
