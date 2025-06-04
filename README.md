@@ -2,10 +2,10 @@
 smallsh implements a subset of features of well-known shells, such as bash.
 
 ## To Run
-- Clone the repo: '''git clone git@github.com:dwgrossberg/smallsh.git'''
-- Open project directory: '''cd smallsh'''
-- Compile an executable file: '''gcc -o smallsh *.c'''
-- Run the file: '''./smallsh'''
+- Clone the repo: ```git clone git@github.com:dwgrossberg/smallsh.git```
+- Open project directory: ```cd smallsh```
+- Compile an executable file: ```gcc -o smallsh *.c```
+- Run the file: ```smallsh```
 
 ## Features
 - Provides a prompt for running commands
